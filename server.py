@@ -16,13 +16,11 @@ class CapnpJSONEncoder(json.JSONEncoder):
 
     def default(self, obj):
         if isinstance(obj, capnp.lib.capnp._DynamicStructBuilder):
-            # add uninitialized fields, set values to null
-            def attr(key):
-                try:
-                    return (key, getattr(obj, key, None))
-                except:
-                    return (key, None)
-            return dict(attr(key) for key in obj.schema.fields)
+            # It's a struct, inject uninitialized fields from its schema. Set their values to null.
+            def key_value_or_none(key, field):
+                try: return (key, getattr(obj, key, None))
+                except: return (key + " : " + str(field.proto.slot.type.which), None)
+            return dict(key_value_or_none(key, field) for key, field in obj.schema.fields.items())
         if isinstance(obj, capnp.lib.capnp._DynamicListBuilder):
             return [item for item in obj] + [None]
         if isinstance(obj, capnp.lib.capnp._DynamicEnum):

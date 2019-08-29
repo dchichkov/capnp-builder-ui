@@ -17,20 +17,20 @@ $(function () {
             success: function(response) {
                 // This function takes a tree-like Json object as an input and flattens that tree, 
                 // creating a list of <tr> elements identified by "id_key_key_..." strings.
-                // Branches of the tree that don't have "glyphicon-collapse-up" class are ignored.
+                // Branches of the tree that don't have "capnp-collapse" class are ignored.
                 var toRows = function(object, prefix = "id", level = 0) {
                     if (object == null) return "";
                     console.log(object);
 
-                    var unchecked = "<span class='glyphicon glyphicon-unchecked capnp-clickable'></span>";
-                    var expand = "<span class='glyphicon glyphicon-expand capnp-clickable'></span>";
-                    var collapse = "<span class='glyphicon glyphicon-collapse-up capnp-clickable'></span>";
-                    var remove = "<span class='glyphicon glyphicon-remove capnp-clickable'></span>";
+                    var unchecked = "<span style='font-size:medium;' class='capnp-unchecked capnp-clickable'>&#8865;&nbsp;</span>";
+                    var expand = "<span style='font-size:medium;' class='capnp-expand capnp-clickable'>&#8862;&nbsp;</span>";
+                    var collapse = "<span style='font-size:medium;' class='capnp-collapse capnp-clickable'>&#8863;&nbsp;</span>";
+                    var remove = "<span style='font-size:medium;' class='capnp-collapse capnp-clickable'>&#8864;&nbsp;</span>";
                     
                     return $.map(object, function(value, key) { 
                         var id = prefix + "-" + key
                         var expandable = value instanceof Object;
-                        var collapsable = expandable && $("#" + id + " > td > span").hasClass("glyphicon-collapse-up");
+                        var collapsable = expandable && $("#" + id + " > td > span").hasClass("capnp-collapse");
                         return    "<tr id='" + id + "' name='" + id.replace("id-", "").replace(/-/g, ".") + "'>"
                                 +    "<td>" + "&nbsp;".repeat(level*4) 
                                 +      (value == null   ? unchecked :
@@ -49,15 +49,15 @@ $(function () {
                 // it is used when performing any tree-table update, local or requiring request to the server
                 updateTableLocal = function() {
                     $("#tree-table").html(toRows(response).join("\n"));
-                    $(".capnp-clickable.glyphicon-expand").click(function() {
-                        $(this).removeClass("glyphicon-expand").addClass("glyphicon-collapse-up");
+                    $(".capnp-expand").click(function() {
+                        $(this).removeClass("capnp-expand").addClass("capnp-collapse");
                         updateTableLocal();
                     });
-                    $(".capnp-clickable.glyphicon-collapse-up").click(function() {
-                        $(this).removeClass("glyphicon-collapse-up").addClass("glyphicon-expand");
+                    $(".capnp-collapse").click(function() {
+                        $(this).removeClass("capnp-collapse").addClass("capnp-expand");
                         updateTableLocal();
                     });
-                    $(".capnp-clickable.glyphicon-unchecked").click(function() {
+                    $(".capnp-unchecked").click(function() {
                         updateTable({initialize : $(this).closest("tr").attr("name"),
                                      object : response});
                     });
