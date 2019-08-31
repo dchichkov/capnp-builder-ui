@@ -25,20 +25,21 @@ $(function () {
                     var unchecked = "<span style='font-size:medium;' class='capnp-unchecked capnp-clickable'>&#8865;&nbsp;</span>";
                     var expand = "<span style='font-size:medium;' class='capnp-expand capnp-clickable'>&#8862;&nbsp;</span>";
                     var collapse = "<span style='font-size:medium;' class='capnp-collapse capnp-clickable'>&#8863;&nbsp;</span>";
-                    var remove = "<span style='font-size:medium;' class='capnp-collapse capnp-clickable'>&#8864;&nbsp;</span>";
+                    var remove = "<span style='font-size:medium;' class='capnp-remove capnp-clickable'>&#8864;&nbsp;</span>";
                     
                     return $.map(object, function(value, key) { 
                         var id = prefix + "-" + key
                         var expandable = value instanceof Object;
                         var collapsable = expandable && $("#" + id + " > td > span").hasClass("capnp-collapse");
                         return    "<tr id='" + id + "' name='" + id.replace("id-", "").replace(/-/g, ".") + "'>"
-                                +    "<td>" + "&nbsp;".repeat(level*4) 
+                                +    "<td style='padding:0 !important;'>" + "&nbsp;".repeat(level*4) 
                                 +      (value == null   ? unchecked :
                                          collapsable     ? collapse : 
                                          expandable      ? expand : "")
                                 +      key
                                 +    "</td>"
-                                +    (expandable ? "<td></td>" : "<td>" + value + "</td>")
+                                +    (expandable ? "<td style='padding:0 !important;'></td>"
+                                                 : "<td contenteditable='true' style='padding:0 !important;'>" + value + "</td>")
                                 +  "</tr>"
                                 // recourse into the tree
                                 +  (collapsable ? toRows(value, id, level + 1) : "");
