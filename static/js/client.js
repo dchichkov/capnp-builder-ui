@@ -40,8 +40,8 @@ $(function () {
                                 +    "<td style='padding:0 !important;'>" + "&nbsp;".repeat(level*6) 
                                 +      (value == null   ? unchecked :
                                          collapsable     ? collapse : 
-                                         expandable      ? expand : "")
-                                +    "<span style='font-size:medium; color:lightgray'> &#9482;</span>"
+                                         expandable      ? expand   : "&nbsp;".repeat(3))
+                                +    "<span style='font-size:medium; color:lightgray'>&#9482;</span>"
                                 +      key
                                 +    ((collapsable || expandable) ? "&nbsp;" + remove : "")
                                 +    "</td>"
