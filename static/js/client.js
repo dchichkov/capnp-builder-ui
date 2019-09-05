@@ -24,11 +24,11 @@ $(function () {
 
                     // Note, only native html elements and inline styles are used, 
                     // in an attempt to make this code framework independent                    
-                    var unchecked = "<span style='font-size:medium;' class='capnp-unchecked capnp-clickable'>&#8865;&nbsp;</span>";
-                    var expand = "<span style='font-size:medium;' class='capnp-expand capnp-clickable'>&#8862;&nbsp;</span>";
-                    var collapse = "<span style='font-size:medium;' class='capnp-collapse capnp-clickable'>&#8863;&nbsp;</span>";
-                    var remove = "<span style='font-size:small; color:lightgray' class='capnp-remove capnp-clickable'>&#8864;&nbsp;</span>";
-                    var down = "<span style='font-size:medium; color:lightgray' class='capnp-down capnp-clickable'>&#9660;&nbsp;</span>";                                    
+                    var unchecked = "<span style='font-size:medium;' class='capnp-unchecked capnp-clickable'>&#8865;</span>";
+                    var expand = "<span style='font-size:medium;' class='capnp-expand capnp-clickable'>&#8862;</span>";
+                    var collapse = "<span style='font-size:medium;' class='capnp-collapse capnp-clickable'>&#8863;</span>";
+                    var remove = "<span style='font-size:small; color:lightgray' class='capnp-remove capnp-clickable'>&#8864;</span>";
+                    var down = "<span style='font-size:medium; color:lightgray' class='capnp-down capnp-clickable'>&#9660;</span>";                                    
                     //var down = "<span style='font-size:medium; color:lightgray' class='capnp-down capnp-clickable'>&#8675;&nbsp;</span>";
                     
                     
@@ -37,10 +37,11 @@ $(function () {
                         var expandable = value instanceof Object;
                         var collapsable = expandable && $("#" + id + " > td > span").hasClass("capnp-collapse");
                         return    "<tr id='" + id + "' name='" + id.replace("id-", "").replace(/-/g, ".") + "'>"
-                                +    "<td style='padding:0 !important;'>" + "&nbsp;".repeat(level*4) 
+                                +    "<td style='padding:0 !important;'>" + "&nbsp;".repeat(level*6) 
                                 +      (value == null   ? unchecked :
                                          collapsable     ? collapse : 
                                          expandable      ? expand : "")
+                                +    "<span style='font-size:medium; color:lightgray'> &#9482;</span>"
                                 +      key
                                 +    ((collapsable || expandable) ? "&nbsp;" + remove : "")
                                 +    "</td>"
