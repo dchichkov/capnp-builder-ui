@@ -22,10 +22,15 @@ $(function () {
                     if (object == null) return "";
                     console.log(object);
 
+                    // Note, only native html elements and inline styles are used, 
+                    // in an attempt to make this code framework independent                    
                     var unchecked = "<span style='font-size:medium;' class='capnp-unchecked capnp-clickable'>&#8865;&nbsp;</span>";
                     var expand = "<span style='font-size:medium;' class='capnp-expand capnp-clickable'>&#8862;&nbsp;</span>";
                     var collapse = "<span style='font-size:medium;' class='capnp-collapse capnp-clickable'>&#8863;&nbsp;</span>";
-                    var remove = "<span style='font-size:medium;' class='capnp-remove capnp-clickable'>&#8864;&nbsp;</span>";
+                    var remove = "<span style='font-size:small; color:lightgray' class='capnp-remove capnp-clickable'>&#8864;&nbsp;</span>";
+                    var down = "<span style='font-size:medium; color:lightgray' class='capnp-down capnp-clickable'>&#9660;&nbsp;</span>";                                    
+                    //var down = "<span style='font-size:medium; color:lightgray' class='capnp-down capnp-clickable'>&#8675;&nbsp;</span>";
+                    
                     
                     return $.map(object, function(value, key) { 
                         var id = prefix + "-" + key
@@ -37,9 +42,13 @@ $(function () {
                                          collapsable     ? collapse : 
                                          expandable      ? expand : "")
                                 +      key
+                                +    ((collapsable || expandable) ? "&nbsp;" + remove : "")
                                 +    "</td>"
                                 +    (expandable ? "<td style='padding:0 !important;'></td>"
-                                                 : "<td contenteditable='true' style='padding:0 !important;'>" + value + "</td>")
+                                                 //: "<td class='capnp-value' contenteditable='true' style='padding:0 !important;'>" + value + "</td>")
+                                                 : "<td class='capnp-value' contenteditable='true' style='padding:0 !important;'>"
+                                                      +  value + "&nbsp;" + down + "</td>")
+                                                 
                                 +  "</tr>"
                                 // recourse into the tree
                                 +  (collapsable ? toRows(value, id, level + 1) : "");
@@ -61,6 +70,15 @@ $(function () {
                     $(".capnp-unchecked").click(function() {
                         updateTable({initialize : $(this).closest("tr").attr("name"),
                                      object : response});
+                    });
+                    $(".capnp-remove").click(function() {
+                        updateTable({initialize : $(this).closest("tr").attr("name"),
+                                     value : null});
+                });
+                    $(".capnp-value").change(function() {
+                        //clearTimeout($(this).data());
+                            updateTable({initialize : $(this).closest("tr").attr("name"),
+                            value : $(this).text()});
                     });
                 }
 

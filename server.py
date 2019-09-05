@@ -19,7 +19,8 @@ class CapnpJSONEncoder(json.JSONEncoder):
             # It's a struct, inject uninitialized fields from its schema. Set their values to null.
             def key_value_or_none(key, field):
                 try: return (key, getattr(obj, key, None))
-                except: return (key + " : " + str(field.proto.slot.type.which), None)
+                #except: return (key + " : " + str(field.proto.slot.type.which), None)
+                except: return (key, None)
             return dict(key_value_or_none(key, field) for key, field in obj.schema.fields.items())
         if isinstance(obj, capnp.lib.capnp._DynamicListBuilder):
             return [item for item in obj] + [None]
@@ -80,6 +81,11 @@ def get_update():
             item.init(path[-1])
         except:
             item.init(path[-1], size=1)
+
+        if 'value' in request.json:
+            setattr(item, path[-1], request.json['value'])
+
+
 
     return jsonify(object)
 
