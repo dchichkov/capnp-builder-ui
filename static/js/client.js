@@ -28,7 +28,7 @@ $(function () {
                     var expand = "<span style='font-size:medium;' class='capnp-expand capnp-clickable'>&#8862;</span>";
                     var collapse = "<span style='font-size:medium;' class='capnp-collapse capnp-clickable'>&#8863;</span>";
                     var remove = "<span style='font-size:small; color:lightgray' class='capnp-remove capnp-clickable'>&#8864;</span>";
-                    var down = "<span style='font-size:medium; color:lightgray' class='capnp-down capnp-clickable'>&#9660;</span>";                                    
+                    var down = "<span style='font-size:medium; color:lightgray; float:right;' class='capnp-down capnp-clickable'>&#9660;</span>";                                    
                     //var down = "<span style='font-size:medium; color:lightgray' class='capnp-down capnp-clickable'>&#8675;&nbsp;</span>";
                     
                     
@@ -46,9 +46,8 @@ $(function () {
                                 +    ((collapsable || expandable) ? "&nbsp;" + remove : "")
                                 +    "</td>"
                                 +    (expandable ? "<td style='padding:0 !important;'></td>"
-                                                 //: "<td class='capnp-value' contenteditable='true' style='padding:0 !important;'>" + value + "</td>")
-                                                 : "<td class='capnp-value' contenteditable='true' style='padding:0 !important;'>"
-                                                      +  value + "&nbsp;" + down + "</td>")
+                                                 : "<td class='capnp-value' contenteditable='true' style='padding:0 !important;'>" + value + "</td>")
+                                                 //: "<td class='capnp-value' style='padding:0 !important;'>" +  value + down + "</td>")
                                                  
                                 +  "</tr>"
                                 // recourse into the tree
@@ -74,12 +73,13 @@ $(function () {
                     });
                     $(".capnp-remove").click(function() {
                         updateTable({initialize : $(this).closest("tr").attr("name"),
-                                     value : null});
+                                     value : null,
+                                     object : response});
                 });
-                    $(".capnp-value").change(function() {
-                        //clearTimeout($(this).data());
-                            updateTable({initialize : $(this).closest("tr").attr("name"),
-                            value : $(this).text()});
+                    $(".capnp-value").focusout(function() {
+                        updateTable({initialize : $(this).closest("tr").attr("name"),
+                                     value : $(this).text(),
+                                     object : response});
                     });
                 }
 
