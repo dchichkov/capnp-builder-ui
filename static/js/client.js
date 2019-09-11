@@ -28,7 +28,7 @@ $(function () {
                     var expand = "<span style='font-size:medium;' class='capnp-expand capnp-clickable'>&#8862;</span>";
                     var collapse = "<span style='font-size:medium;' class='capnp-collapse capnp-clickable'>&#8863;</span>";
                     var remove = "<span style='font-size:small; color:lightgray' class='capnp-remove capnp-clickable'>&#8864;</span>";
-                    var down = "<span style='font-size:medium; color:lightgray; float:right;' class='capnp-down capnp-clickable'>&#9660;</span>";                                    
+                    var dropdown = "<span style='font-size:medium; color:lightgray; float:right;' class='capnp-dropdown capnp-clickable'>&#9660;</span>";                                    
                     //var down = "<span style='font-size:medium; color:lightgray' class='capnp-down capnp-clickable'>&#8675;&nbsp;</span>";
                     
                     
@@ -46,13 +46,19 @@ $(function () {
                                 +    ((collapsable || expandable) ? "&nbsp;" + remove : "")
                                 +    "</td>"
                                 +    (expandable ? "<td style='padding:0 !important;'></td>"
-                                                 : "<td class='capnp-value' contenteditable='true' style='padding:0 !important;'>" + value + "</td>")
-                                                 //: "<td class='capnp-value' style='padding:0 !important;'>" +  value + down + "</td>")
+                                                 //: "<td class='capnp-value' contenteditable='true' style='padding:0 !important;'>" + value + "</td>")
+                                                 : "<td class='capnp-value' style='padding:0 !important;'>" +  value + dropdown + "</td>")
                                                  
                                 +  "</tr>"
                                 // recourse into the tree
                                 +  (collapsable ? toRows(value, id, level + 1) : "");
                     });
+                };
+
+                updateValue = function() {
+                    updateTable({initialize : $(this).closest("tr").attr("name"),
+                                 value : $(this).text(),
+                                 object : response});
                 };
 
                 // This function updates the #tree-table element from "response" received from the server
@@ -71,15 +77,27 @@ $(function () {
                         updateTable({initialize : $(this).closest("tr").attr("name"),
                                      object : response});
                     });
-                    $(".capnp-remove").click(function() {
-                        updateTable({initialize : $(this).closest("tr").attr("name"),
-                                     value : null,
-                                     object : response});
-                });
-                    $(".capnp-value").focusout(function() {
-                        updateTable({initialize : $(this).closest("tr").attr("name"),
-                                     value : $(this).text(),
-                                     object : response});
+                    $(".capnp-remove").click(updateValue);
+                    $(".capnp-value").focusout(updateValue);
+                    $(".capnp-dropdown").click(function(event) {
+                        var $td = $(this).closest("td");
+                        $("<div id='capnp-dropdown-menu' class='capnp-dropdown-menu'>"
+                        +   "<div class='capnp-dropdown-current-item'>" + $td.html() + "</div>"
+                        +   "<div class='capnp-dropdown-item'>kRed</div>"
+                        +   "<div class='capnp-dropdown-item'>kWhite<div>"
+                        + "</div>").css({
+                            "position" : "absolute",
+                            "left"     : $td.position().left,
+                            "top"      : $td.position().top,
+                            "width"    : $td.width(),
+                            "border"   : "2px solid lightgray",
+                            "background-color" : "white",
+                        }).appendTo($td.closest("table"));
+
+                        $(".capnp-dropdown-item").click(updateValue);                        
+                        $(".capnp-dropdown-menu").click(function() {
+                            $(this).remove();
+                        });
                     });
                 }
 
@@ -91,6 +109,5 @@ $(function () {
             }
         });
     };
-
     updateTable();
 });
