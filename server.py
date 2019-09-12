@@ -10,13 +10,13 @@ class CapnpJSONEncoder(json.JSONEncoder):
             1. Checks if the type is _DynamicListBuilder, encodes it as list
                Adds None as a placeholder to the end of that list
             2. Checks if the type is _DynamicStructBuilder, encodes it as dict
-               Adds {key : None} as placeholders for uninitialized fields of
+               Adds {key : None} as placeholders for unnamed fields of
                the _DynamicStructBuilder using the obj.schema.fields
     """
 
     def default(self, obj):
         if isinstance(obj, capnp.lib.capnp._DynamicStructBuilder):
-            # It's a struct, inject uninitialized fields from its schema. Set their values to null.
+            # It's a struct, inject unnamed fields from its schema. Set their values to null.
             def key_value_or_none(key, field):
                 try: return (key, getattr(obj, key, None))
                 #except: return (key + " : " + str(field.proto.slot.type.which), None)
@@ -66,15 +66,16 @@ def index():
 
 
 @app.route('/capnp-builder/api/v1.0/update', methods=['POST'])
-def get_update():
+def post_update():
+    """Initializes field of 'object' accessed by 'name' to 'value'. """
     # object = sample_capnp.TestStruct.new_message(blobField=b'valid utf8:\0\1\2"',int64Field=123456789012345678)
     print(request.json)
 
     if 'object' in request.json:
         # set values in json, before we parse the object
-        if 'initialize' in request.json and 'value' in request.json:
-            item, path = request.json['object'], request.json['initialize'].split('.')
-            for key in path[:-1]: item, key = item[key], path[-1]
+        if 'name' in request.json and 'value' in request.json:
+            item, name = request.json['object'], request.json['name'].split('.')
+            for key in name[:-1]: item, key = item[key], name[-1]
             if request.json['value'] == None:
                 del item[key]
             else:
@@ -85,16 +86,23 @@ def get_update():
     else:
         object = sample_capnp.Serialization.new_message(header={'messageNumber': 2})
 
-
-    if 'initialize' in request.json and 'value' not in request.json:
-        item, path = object, request.json['initialize'].split('.')
-        for key in path[:-1]: item, key = getattr(item, key), path[-1]
+    if 'name' in request.json and 'value' not in request.json:
+        item, name = object, request.json['name'].split('.')
+        for key in name[:-1]: item, key = getattr(item, key), name[-1]
         try:
             item.init(key)
         except:
             item.init(key, size=1)
 
     return jsonify(object)
+
+@app.route('/capnp-builder/api/v1.0/list', methods=['POST'])
+def post_list():
+    """Request a list of enumerants for field of 'object' accessed by 'name'. """
+    schema = sample_capnp.Serialization.new_message(**request.json['object']).schema
+    item, name = request.json['object'], request.json['name'].split('.')
+    for key in name: schema = schema.fields[key].schema
+    return jsonify(list(schema.enumerants.keys()))
 
 
 if __name__ == '__main__':

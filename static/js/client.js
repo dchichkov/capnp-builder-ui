@@ -1,6 +1,6 @@
 $(function () {
     // This function sends an AJAX request to /capnp-builder/api/v1.0/update containing optional:
-    //  initialize : path.to.the.field to initialize or set,
+    //  name       : path.to.the.field to initialize, set or delete
     //  object     : {serialized CapNProto object}, as received from the responce previously
     //  value      : value of the field to set or update
     // fields.
@@ -28,9 +28,7 @@ $(function () {
                     var expand = "<span style='font-size:medium;' class='capnp-expand capnp-clickable'>&#8862;</span>";
                     var collapse = "<span style='font-size:medium;' class='capnp-collapse capnp-clickable'>&#8863;</span>";
                     var remove = "<span style='font-size:small; color:lightgray' class='capnp-remove capnp-clickable'>&#8864;</span>";
-                    var dropdown = "<span style='font-size:medium; color:lightgray; float:right;' class='capnp-dropdown capnp-clickable'>&#9660;</span>";                                    
-                    //var down = "<span style='font-size:medium; color:lightgray' class='capnp-down capnp-clickable'>&#8675;&nbsp;</span>";
-                    
+                    var dropdown = "<span style='font-size:medium; color:lightgray; float:right;' class='capnp-dropdown capnp-clickable'>&#9660;</span>";
                     
                     return $.map(object, function(value, key) { 
                         var id = prefix + "-" + key
@@ -47,8 +45,7 @@ $(function () {
                                 +    "</td>"
                                 +    (expandable ? "<td style='padding:0 !important;'></td>"
                                                  //: "<td class='capnp-value' contenteditable='true' style='padding:0 !important;'>" + value + "</td>")
-                                                 : "<td class='capnp-value' style='padding:0 !important;'>" +  value + dropdown + "</td>")
-                                                 
+                                                 : "<td class='capnp-value' style='padding:0 !important;'>" +  value + dropdown + "</td>")                                                 
                                 +  "</tr>"
                                 // recourse into the tree
                                 +  (collapsable ? toRows(value, id, level + 1) : "");
@@ -56,7 +53,7 @@ $(function () {
                 };
 
                 updateValue = function() {
-                    updateTable({initialize : $(this).closest("tr").attr("name"),
+                    updateTable({name : $(this).closest("tr").attr("name"),
                                  value : $(this).text(),
                                  object : response});
                 };
@@ -74,30 +71,42 @@ $(function () {
                         updateTableLocal();
                     });
                     $(".capnp-unchecked").click(function() {
-                        updateTable({initialize : $(this).closest("tr").attr("name"),
+                        updateTable({name : $(this).closest("tr").attr("name"),
                                      object : response});
                     });
                     $(".capnp-remove").click(updateValue);
                     $(".capnp-value").focusout(updateValue);
+
+                    // This function handles the dropdown box that displays a chioce of 'enum' values
                     $(".capnp-dropdown").click(function(event) {
                         var $td = $(this).closest("td");
-                        $("<div id='capnp-dropdown-menu' class='capnp-dropdown-menu'>"
-                        +   "<div class='capnp-dropdown-current-item'>" + $td.html() + "</div>"
-                        +   "<div class='capnp-dropdown-item'>kRed</div>"
-                        +   "<div class='capnp-dropdown-item'>kWhite<div>"
-                        + "</div>").css({
-                            "position" : "absolute",
-                            "left"     : $td.position().left,
-                            "top"      : $td.position().top,
-                            "width"    : $td.width(),
-                            "border"   : "2px solid lightgray",
-                            "background-color" : "white",
-                        }).appendTo($td.closest("table"));
-
+                        var request = {name : $(this).closest("tr").attr("name"),
+                                       object : response};
+                        $.ajax({
+                            url: '/capnp-builder/api/v1.0/list',
+                            contentType:"application/json",
+                            dataType:"json",
+                            data: JSON.stringify(request),
+                            type: 'POST',
+                            success: function(response) {
+                                $("<div id='capnp-dropdown-menu' class='capnp-dropdown-menu'>"
+                                +   "<div class='capnp-dropdown-current-item'>" + $td.html() + "</div>"
+                                +   $.map(response, function(item) {
+                                        return "<div class='capnp-dropdown-item'>" + item + "</div>"
+                                    }).join("")
+                                + "</div>").css({
+                                    "position" : "absolute",
+                                    "left"     : $td.position().left,
+                                    "top"      : $td.position().top,
+                                    "width"    : $td.width(),
+                                    "border"   : "2px solid lightgray",
+                                    "background-color" : "white",
+                                }).appendTo($td.closest("table"));
+                            },
+                            error: function(error) {console.error(error);}
+                        });                
                         $(".capnp-dropdown-item").click(updateValue);                        
-                        $(".capnp-dropdown-menu").click(function() {
-                            $(this).remove();
-                        });
+                        $("#tree-table").click(function() {$(".capnp-dropdown-menu").remove();});
                     });
                 }
 
